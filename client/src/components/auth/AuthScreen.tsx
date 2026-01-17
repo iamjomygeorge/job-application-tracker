@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { useSearchParams } from "next/navigation";
+import { validateSignup } from "@/utils/validation";
 
 export default function AuthScreen() {
   const searchParams = useSearchParams();
@@ -11,6 +12,7 @@ export default function AuthScreen() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const authParam = searchParams.get("auth");
@@ -23,11 +25,16 @@ export default function AuthScreen() {
     e.preventDefault();
     setAuthLoading(true);
     setAuthError(null);
+    setSuccessMessage(null);
 
-    if (authView === "signup" && password !== confirmPassword) {
-      setAuthError("Passwords do not match");
-      setAuthLoading(false);
-      return;
+    if (authView === "signup") {
+      const validationErrors = validateSignup(email, password, confirmPassword);
+
+      if (validationErrors.length > 0) {
+        setAuthError(validationErrors.join("\n"));
+        setAuthLoading(false);
+        return;
+      }
     }
 
     try {
@@ -38,12 +45,42 @@ export default function AuthScreen() {
         });
         if (error) throw error;
       } else {
-        const { error } = await supabase.auth.signUp({ email, password });
+        const { data, error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
+
+        if (
+          data.user &&
+          data.user.identities &&
+          data.user.identities.length === 0
+        ) {
+          throw new Error("Account already exists. Please log in.");
+        }
+
+        setAuthLoading(false);
+        setAuthView("login");
+        setSuccessMessage(
+          "Account created successfully! Please confirm your email address and login."
+        );
+        setEmail("");
+        setPassword("");
+        setConfirmPassword("");
+
+        setTimeout(() => {
+          setSuccessMessage(null);
+        }, 4000);
       }
     } catch (err: unknown) {
-      const errorMessage =
+      let errorMessage =
         err instanceof Error ? err.message : "An unknown error occurred";
+
+      if (
+        /user already registered/i.test(errorMessage) ||
+        /already registered/i.test(errorMessage) ||
+        /already exists/i.test(errorMessage)
+      ) {
+        errorMessage = `Account with ${email} already exists. Please log in.`;
+      }
+
       setAuthError(errorMessage);
     } finally {
       setAuthLoading(false);
@@ -122,8 +159,14 @@ export default function AuthScreen() {
             </p>
           </div>
 
+          {successMessage && (
+            <div className="mb-6 rounded-lg bg-green-500/10 border border-green-500/20 p-4 text-sm text-green-500 whitespace-pre-line text-left">
+              {successMessage}
+            </div>
+          )}
+
           {authError && (
-            <div className="mb-6 rounded-lg bg-red-500/10 border border-red-500/20 p-4 text-sm text-red-500">
+            <div className="mb-6 rounded-lg bg-red-500/10 border border-red-500/20 p-4 text-sm text-red-500 whitespace-pre-line text-left">
               {authError}
             </div>
           )}
@@ -177,7 +220,9 @@ export default function AuthScreen() {
               className="w-full rounded-xl bg-primary py-3.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition-all hover:bg-primary/90 hover:shadow-primary/40 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {authLoading
-                ? "Logging in..."
+                ? authView === "login"
+                  ? "Logging in..."
+                  : "Signing up..."
                 : authView === "login"
                 ? "Sign In"
                 : "Sign Up"}
@@ -193,6 +238,10 @@ export default function AuthScreen() {
               onClick={() => {
                 setAuthView(authView === "login" ? "signup" : "login");
                 setAuthError(null);
+                setSuccessMessage(null);
+                setEmail("");
+                setPassword("");
+                setConfirmPassword("");
               }}
               className="font-medium text-primary hover:text-primary/80 transition-colors"
             >
