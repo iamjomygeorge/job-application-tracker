@@ -6,9 +6,22 @@ import { useAuth } from "@/context/AuthContext";
 
 import { useTheme } from "@/context/ThemeContext";
 
+import { useState } from "react";
+
 export default function Navbar() {
   const { user, signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  const handleSignOut = async () => {
+    setIsSigningOut(true);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      await signOut();
+    } finally {
+      setIsSigningOut(false);
+    }
+  };
 
   return (
     <nav className="fixed top-0 w-full z-50 border-b border-border bg-background/80 backdrop-blur-md transition-colors duration-300">
@@ -76,10 +89,18 @@ export default function Navbar() {
                   {user.email}
                 </span>
                 <button
-                  onClick={() => signOut()}
-                  className="px-4 py-2 rounded-lg text-sm font-medium text-gray-500 dark:text-gray-300 hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                  onClick={handleSignOut}
+                  disabled={isSigningOut}
+                  className="px-4 py-2 rounded-lg text-sm font-medium text-gray-500 dark:text-gray-300 hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
-                  Sign Out
+                  {isSigningOut ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-gray-500/30 border-t-gray-500 rounded-full animate-spin dark:border-gray-400/30 dark:border-t-gray-400"></div>
+                      Signing out...
+                    </>
+                  ) : (
+                    "Sign Out"
+                  )}
                 </button>
               </>
             ) : (
