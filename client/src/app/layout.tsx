@@ -8,8 +8,20 @@ import { ThemeProvider } from "@/context/ThemeContext";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Job Tracker",
+  title: "Job Application Tracker",
   description: "Track your job applications",
+  icons: {
+    icon: [
+      {
+        url: "/icons/app-icon-dark.png",
+        media: "(prefers-color-scheme: light)",
+      },
+      {
+        url: "/icons/app-icon-light.png",
+        media: "(prefers-color-scheme: dark)",
+      },
+    ],
+  },
 };
 
 export default function RootLayout({
@@ -23,9 +35,7 @@ export default function RootLayout({
         <ThemeProvider>
           <AuthProvider>
             <Navbar />
-            <main className="pt-16 min-h-screen">
-              {children}
-            </main>
+            <main className="pt-16 min-h-screen">{children}</main>
           </AuthProvider>
         </ThemeProvider>
       </body>

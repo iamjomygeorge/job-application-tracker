@@ -84,6 +84,13 @@ export default function Home() {
     }
   }, [session, fetchJobs]);
 
+  useEffect(() => {
+    setEmail("");
+    setPassword("");
+    setConfirmPassword("");
+    setAuthError(null);
+  }, [session]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
@@ -210,11 +217,8 @@ export default function Home() {
         <div className="w-full max-w-6xl grid md:grid-cols-2 gap-12 items-center">
           <div className="space-y-8 text-center md:text-left animate-in slide-in-from-left duration-500">
             <div>
-              <h1 className="text-4xl md:text-6xl font-extrabold text-foreground mb-4 leading-tight">
-                Land Your <br />
-                <span className="bg-clip-text text-transparent bg-linear-to-r from-primary to-purple-400">
-                  Dream Job
-                </span>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground mb-4 leading-tight">
+                Track Your <span className="text-primary">Applications</span>
               </h1>
               <p className="text-lg text-gray-500 dark:text-gray-400 max-w-lg mx-auto md:mx-0">
                 Stop losing track of your applications. Organize, track, and
@@ -262,7 +266,7 @@ export default function Home() {
                     />
                   </svg>
                 </div>
-                <h3 className="font-semibold text-foreground mb-1">Analyze</h3>
+                <h3 className="font-semibold text-foreground mb-1">Insights</h3>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
                   Visualize your progress with stats.
                 </p>
@@ -278,7 +282,7 @@ export default function Home() {
               <p className="text-gray-500 dark:text-gray-400">
                 {authView === "login"
                   ? "Sign in to manage your applications"
-                  : "Start tracking your dream jobs today"}
+                  : "Start tracking your applications today"}
               </p>
             </div>
 
@@ -299,7 +303,7 @@ export default function Home() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   className="glass-input w-full rounded-xl px-4 py-3 text-foreground placeholder-gray-400 focus:ring-2 focus:ring-primary/50"
-                  placeholder="you@example.com"
+                  placeholder="Enter your email"
                 />
               </div>
 
@@ -314,7 +318,7 @@ export default function Home() {
                   required
                   minLength={6}
                   className="glass-input w-full rounded-xl px-4 py-3 text-foreground placeholder-gray-400 focus:ring-2 focus:ring-primary/50"
-                  placeholder="••••••••"
+                  placeholder="Enter your password"
                 />
               </div>
 
@@ -329,7 +333,7 @@ export default function Home() {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
                     className="glass-input w-full rounded-xl px-4 py-3 text-foreground placeholder-gray-400 focus:ring-2 focus:ring-primary/50"
-                    placeholder="••••••••"
+                    placeholder="Confirm your password"
                   />
                 </div>
               )}
@@ -366,7 +370,7 @@ export default function Home() {
                 }}
                 className="font-medium text-primary hover:text-primary/80 transition-colors"
               >
-                {authView === "login" ? "Create one now" : "Sign in instead"}
+                {authView === "login" ? "Sign up" : "Sign in instead"}
               </button>
             </div>
           </div>
