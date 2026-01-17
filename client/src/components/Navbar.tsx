@@ -3,18 +3,12 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
-import { usePathname } from "next/navigation";
 
 import { useTheme } from "@/context/ThemeContext";
 
 export default function Navbar() {
   const { user, signOut } = useAuth();
   const { theme, toggleTheme } = useTheme();
-  const pathname = usePathname();
-
-  if (!user && (pathname === "/login" || pathname === "/signup")) {
-    return null;
-  }
 
   return (
     <nav className="fixed top-0 w-full z-50 border-b border-border bg-background/80 backdrop-blur-md transition-colors duration-300">
@@ -91,13 +85,13 @@ export default function Navbar() {
             ) : (
               <div className="flex items-center gap-4">
                 <Link
-                  href="/login"
+                  href="/?auth=login"
                   className="text-sm font-medium text-foreground/80 hover:text-foreground transition-colors"
                 >
                   Log In
                 </Link>
                 <Link
-                  href="/signup"
+                  href="/?auth=signup"
                   className="px-4 py-2 rounded-lg text-sm font-medium bg-primary text-white hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20"
                 >
                   Sign Up

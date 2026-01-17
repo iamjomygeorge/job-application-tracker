@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import CustomSelect from "@/components/CustomSelect";
 import { useAuth } from "@/context/AuthContext";
+import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 interface JobApplication {
@@ -26,6 +27,7 @@ const STATUS_COLORS = {
 
 export default function Home() {
   const { session } = useAuth();
+  const searchParams = useSearchParams();
 
   const [jobs, setJobs] = useState<JobApplication[]>([]);
   const [loading, setLoading] = useState(true);
@@ -90,6 +92,13 @@ export default function Home() {
     setConfirmPassword("");
     setAuthError(null);
   }, [session]);
+
+  useEffect(() => {
+    const authParam = searchParams.get("auth");
+    if (authParam === "login" || authParam === "signup") {
+      setAuthView(authParam);
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
