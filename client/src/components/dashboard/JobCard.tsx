@@ -68,7 +68,7 @@ export default function JobCard({ job, onEdit, onDelete }: JobCardProps) {
           {job.role}
         </p>
 
-        <div className="space-y-3 mb-6">
+        <div className="space-y-3 mb-4">
           <div className="flex items-center gap-2 text-sm text-gray-500">
             <span className="w-4 h-4 flex items-center justify-center">📅</span>
             {job.applied_date
@@ -78,12 +78,20 @@ export default function JobCard({ job, onEdit, onDelete }: JobCardProps) {
               : "No applied date"}
           </div>
 
+          <div className="flex items-center gap-2 text-sm text-gray-500">
+            <span className="w-4 h-4 flex items-center justify-center">🕒</span>
+            Added Date:{" "}
+            {job.created_at
+              ? new Date(job.created_at).toLocaleDateString("en-GB")
+              : "Unknown"}
+          </div>
+
           {job.job_link && (
             <a
               href={job.job_link}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 text-sm text-gray-500 hover:text-primary transition-colors group/link w-fit"
+              className="flex items-center gap-2 text-sm text-gray-500 hover:text-primary transition-colors group/link w-fit pt-1"
             >
               <span className="w-4 h-4 flex items-center justify-center">
                 🔗
@@ -94,7 +102,7 @@ export default function JobCard({ job, onEdit, onDelete }: JobCardProps) {
         </div>
       </div>
 
-      <div className="pt-4 border-t border-gray-100 dark:border-white/5 flex items-center justify-between">
+      <div className="pt-4 border-t border-gray-100 dark:border-white/5 flex items-center justify-between mt-auto">
         <button
           onClick={() => onEdit(job)}
           className="text-sm font-medium text-gray-500 hover:text-foreground transition-colors"
