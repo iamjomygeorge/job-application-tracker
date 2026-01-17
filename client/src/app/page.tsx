@@ -52,6 +52,8 @@ export default function Home() {
     job_link: "",
   });
 
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+
   const fetchJobs = useCallback(async () => {
     setLoading(true);
     try {
@@ -390,27 +392,27 @@ export default function Home() {
 
   return (
     <ProtectedRoute>
-      <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+      <div className="w-[95%] mx-auto">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6 pt-8">
           <div>
-            <h1 className="text-3xl font-bold text-foreground mb-2">
+            <h1 className="text-4xl md:text-2xl font-extrabold text-foreground mb-4 tracking-tight">
               My Applications
             </h1>
-            <p className="text-gray-500 dark:text-gray-400">
-              Track and manage your job search journey
+            <p className="text-gray-500 dark:text-gray-400 text-lg max-w-2xl">
+              Manage your job applications.
             </p>
           </div>
 
-          <div className="flex gap-4">
-            <div className="w-40">
+          <div className="flex flex-wrap gap-4 items-center w-full md:w-auto">
+            <div className="w-52">
               <CustomSelect
                 value={filterStatus}
                 onChange={setFilterStatus}
                 options={[
-                  { label: "All Status", value: "All" },
+                  { label: "All Applications", value: "All" },
                   { label: "Applied", value: "Applied" },
                   { label: "Interview", value: "Interview" },
-                  { label: "Offer", value: "Offer" },
+                  { label: "Offers", value: "Offer" },
                   { label: "Rejected", value: "Rejected" },
                 ]}
               />
@@ -429,7 +431,7 @@ export default function Home() {
                 });
                 setIsModalOpen(true);
               }}
-              className="px-4 py-2 bg-primary hover:bg-primary/90 text-white rounded-lg flex items-center gap-2 transition-colors shadow-lg shadow-primary/25"
+              className="px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-xl flex items-center gap-2.5 transition-all shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5 active:translate-y-0 font-semibold"
             >
               <svg
                 className="w-5 h-5"
@@ -440,11 +442,11 @@ export default function Home() {
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeWidth={2}
+                  strokeWidth={2.5}
                   d="M12 4v16m8-8H4"
                 />
               </svg>
-              Add Application
+              New Application
             </button>
           </div>
         </div>
@@ -562,122 +564,120 @@ export default function Home() {
             </button>
           </div>
         ) : (
-          <div className="grid gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-4">
             {jobs.map((job) => (
               <div
                 key={job.id}
-                className="glass-panel p-6 rounded-xl transition-all hover:border-primary/30 group"
+                className="glass-panel group relative flex flex-col justify-between rounded-3xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/5 border border-transparent hover:border-primary/10 overflow-hidden"
               >
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">
-                        {job.company}
-                      </h3>
+                <div className={`absolute top-0 inset-x-0 h-1.5 w-full bg-linear-to-r ${
+                   job.status === 'Offer' ? 'from-emerald-400 to-emerald-600' : 
+                   job.status === 'Interview' ? 'from-violet-400 to-violet-600' :
+                   job.status === 'Rejected' ? 'from-rose-400 to-rose-600' : 
+                   'from-blue-400 to-blue-600'
+                } opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+
+                <div>
+                   <div className="flex items-start justify-between mb-4">
+                      <div className="p-3 rounded-2xl bg-gray-50 dark:bg-white/5 text-gray-900 dark:text-gray-100">
+                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                      </div>
                       <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium border ${
+                        className={`px-3 py-1.5 rounded-full text-xs font-bold tracking-wide uppercase ${
                           STATUS_COLORS[job.status]
                         }`}
                       >
                         {job.status}
                       </span>
-                    </div>
-                    <p className="text-lg text-gray-500 dark:text-gray-300 mb-2">
+                   </div>
+
+                   <h3 className="text-xl font-bold text-foreground mb-1 line-clamp-1" title={job.company}>
+                      {job.company}
+                   </h3>
+                   <p className="text-gray-500 dark:text-gray-400 font-medium mb-6 line-clamp-1" title={job.role}>
                       {job.role}
-                    </p>
-                    <div className="flex gap-4 text-sm text-gray-500">
-                      <span>
-                        Applied:{" "}
-                        {job.applied_date
-                          ? new Date(job.applied_date).toLocaleDateString()
-                          : "N/A"}
-                      </span>
+                   </p>
+
+                   <div className="space-y-3 mb-6">
+                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                         </svg>
+                         {job.applied_date
+                          ? new Date(job.applied_date).toLocaleDateString(undefined, { dateStyle: 'medium' })
+                          : "No applied date"}
+                      </div>
+                      
                       {job.job_link && (
-                        <a
+                         <a
                           href={job.job_link}
                           target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1 hover:text-primary transition-colors"
-                        >
-                          View Job{" "}
-                          <svg
-                            className="w-3 h-3"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                            />
-                          </svg>
-                        </a>
+                          rel="noopener noreferrer" 
+                          className="flex items-center gap-2 text-sm text-gray-500 hover:text-primary transition-colors group/link w-fit"
+                         >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                            </svg>
+                            Link to Job
+                         </a>
                       )}
-                    </div>
-                  </div>
-
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => openEditModal(job)}
-                      className="p-2 text-gray-400 hover:text-foreground hover:bg-white/10 dark:hover:bg-white/10 rounded-lg transition-colors"
-                    >
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                        />
-                      </svg>
-                    </button>
-                    <button
-                      onClick={() => handleDelete(job.id)}
-                      className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
-                    >
-                      <svg
-                        className="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                        />
-                      </svg>
-                    </button>
-                  </div>
+                   </div>
                 </div>
-                {job.notes && (
-                  <div className="mt-4 pt-4 border-t border-border">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                      {job.notes}
-                    </p>
-                  </div>
-                )}
+
+                <div className="pt-4 border-t border-gray-100 dark:border-white/5 flex items-center justify-between">
+                   <button
+                      onClick={() => openEditModal(job)} 
+                      className="text-sm font-medium text-gray-500 hover:text-foreground transition-colors"
+                   >
+                      Edit Details
+                   </button>
+                   <button
+                      onClick={() => handleDelete(job.id)}
+                      className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all"
+                   >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                   </button>
+                </div>
               </div>
             ))}
           </div>
         )}
 
         {isModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-            <div className="glass-panel w-full max-w-lg rounded-2xl p-6 shadow-2xl animate-in fade-in zoom-in duration-200 bg-background/95 dark:bg-background/80">
+          <div 
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                const hasContent = formData.company || formData.role || formData.job_link || formData.notes;
+                if (hasContent && !editingJob) { // Only confirm for new applications to avoid annoying edits
+                  setShowConfirmDialog(true);
+                } else {
+                  setIsModalOpen(false);
+                }
+              }
+            }}
+          >
+            <div 
+              className="glass-panel w-full max-w-2xl rounded-2xl p-8 shadow-2xl animate-in fade-in zoom-in duration-200 bg-background/95 dark:bg-background/80"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-bold text-foreground">
                   {editingJob ? "Edit Application" : "Add Application"}
                 </h2>
                 <button
-                  onClick={() => setIsModalOpen(false)}
+                  onClick={() => {
+                     const hasContent = formData.company || formData.role || formData.job_link || formData.notes;
+                     if (hasContent && !editingJob) {
+                        setShowConfirmDialog(true);
+                     } else {
+                        setIsModalOpen(false);
+                     }
+                  }}
                   className="text-gray-400 hover:text-foreground"
                 >
                   <svg
@@ -799,7 +799,14 @@ export default function Home() {
                 <div className="flex gap-3 pt-4">
                   <button
                     type="button"
-                    onClick={() => setIsModalOpen(false)}
+                    onClick={() => {
+                       const hasContent = formData.company || formData.role || formData.job_link || formData.notes;
+                       if (hasContent && !editingJob) {
+                          setShowConfirmDialog(true);
+                       } else {
+                          setIsModalOpen(false);
+                       }
+                    }}
                     className="flex-1 py-2 rounded-lg border border-border hover:bg-black/5 dark:hover:bg-white/5 text-gray-500 dark:text-gray-300 transition-colors"
                   >
                     Cancel
@@ -824,6 +831,33 @@ export default function Home() {
           </div>
         )}
       </div>
+      {showConfirmDialog && (
+        <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="glass-panel w-full max-w-sm rounded-2xl p-6 shadow-2xl bg-background border border-border transform transition-all scale-100">
+            <h3 className="text-lg font-bold text-foreground mb-2">Unsaved Changes</h3>
+            <p className="text-gray-500 dark:text-gray-400 mb-6 text-sm">
+              You have unsaved changes. Are you sure you want to discard them?
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowConfirmDialog(false)}
+                className="flex-1 py-2 text-sm font-medium rounded-lg border border-border hover:bg-black/5 dark:hover:bg-white/5 text-gray-600 dark:text-gray-300 transition-colors"
+              >
+                Keep Editing
+              </button>
+              <button
+                onClick={() => {
+                  setShowConfirmDialog(false);
+                  setIsModalOpen(false);
+                }}
+                className="flex-1 py-2 text-sm font-medium rounded-lg bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/20 transition-colors"
+              >
+                Discard
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </ProtectedRoute>
   );
 }

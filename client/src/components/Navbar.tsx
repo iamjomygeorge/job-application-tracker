@@ -12,7 +12,7 @@ export default function Navbar() {
 
   return (
     <nav className="fixed top-0 w-full z-50 border-b border-border bg-background/80 backdrop-blur-md transition-colors duration-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="w-[95%] mx-auto">
         <div className="flex justify-between items-center h-16">
           <Link href="/" className="flex items-center gap-2">
             <Image
