@@ -23,7 +23,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        const {
+          data: { session: currentSession },
+        } = await supabase.auth.getSession();
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
       } catch (error) {
@@ -35,11 +37,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     checkSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
-      
+
       if (_event === "SIGNED_IN") {
         router.refresh();
       }

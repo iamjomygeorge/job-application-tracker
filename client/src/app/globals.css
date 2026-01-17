@@ -78,9 +78,9 @@ body {
   font-family: "Inter", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Glassmorphism Utilities */
 .glass-panel {
   background: var(--color-card);
   backdrop-filter: blur(12px);
@@ -102,7 +102,6 @@ body {
   outline: none;
 }
 
-/* Light mode overrides for glass effect transparency if needed */
 .light .glass-panel {
   background: rgba(255, 255, 255, 0.8);
   border-color: rgba(0, 0, 0, 0.05);

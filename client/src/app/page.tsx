@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState, useCallback, Suspense } from "react";
+import { useState, Suspense } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import CustomSelect from "@/components/CustomSelect";
 import { useAuth } from "@/context/AuthContext";
-import { JobApplication, JobStatus } from "@/types";
-import { applicationsService } from "@/services/applications.service";
+import { JobApplication, JobFormData, JobStatus } from "@/types";
+import { useApplications } from "@/context/ApplicationsContext";
 
 import AuthScreen from "@/components/auth/AuthScreen";
 import StatsGrid from "@/components/dashboard/StatsGrid";
@@ -14,10 +14,15 @@ import JobFormModal from "@/components/modals/JobFormModal";
 import DeleteConfirmModal from "@/components/modals/DeleteConfirmModal";
 
 function DashboardContent() {
-  const { session } = useAuth();
-
-  const [jobs, setJobs] = useState<JobApplication[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { session, loading: authLoading } = useAuth();
+  const {
+    jobs,
+    loading: jobsLoading,
+    refreshJobs,
+    addJob,
+    updateJob,
+    deleteJob,
+  } = useApplications();
   const [filterStatus, setFilterStatus] = useState<JobStatus | "All">("All");
 
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -26,56 +31,25 @@ function DashboardContent() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const fetchJobs = useCallback(
-    async (showLoading = true) => {
-      if (!session?.access_token) return;
-      if (showLoading) setLoading(true);
-      try {
-        const data = await applicationsService.getAll(session.access_token);
-        setJobs(data || []);
-      } catch (error) {
-        console.error("Failed to fetch jobs", error);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [session]
-  );
-
-  useEffect(() => {
-    if (session) {
-      fetchJobs(true);
-    } else {
-      setLoading(false);
-    }
-  }, [session, fetchJobs]);
-
-  const handleSaveJob = async (formData: Partial<JobApplication>) => {
-    if (!session?.access_token) return;
+  const handleSaveJob = async (formData: JobFormData) => {
     try {
       if (editingJob) {
-        await applicationsService.update(
-          editingJob.id,
-          formData,
-          session.access_token
-        );
+        await updateJob(editingJob.id, formData);
       } else {
-        await applicationsService.create(formData, session.access_token);
+        await addJob(formData);
       }
       setIsFormOpen(false);
       setEditingJob(null);
-      fetchJobs(false);
     } catch (error) {
       console.error("Failed to save job", error);
     }
   };
 
   const handleDelete = async () => {
-    if (!deleteId || !session?.access_token) return;
+    if (!deleteId) return;
     setIsDeleting(true);
     try {
-      await applicationsService.delete(deleteId, session.access_token);
-      setJobs(jobs.filter((j) => j.id !== deleteId));
+      await deleteJob(deleteId);
       setDeleteId(null);
     } catch (error) {
       console.error("Failed to delete", error);
@@ -93,14 +67,14 @@ function DashboardContent() {
     filterStatus === "All" ? true : job.status === filterStatus
   );
 
+  if (authLoading) return null;
   if (!session) {
-    if (loading) return null;
     return <AuthScreen />;
   }
 
   return (
     <ProtectedRoute>
-      {loading ? (
+      {jobsLoading ? (
         <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
           <div className="flex flex-col items-center gap-4">
             <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
@@ -111,7 +85,6 @@ function DashboardContent() {
         </div>
       ) : (
         <div className="w-[95%] mx-auto animate-in fade-in slide-in-from-bottom-8 duration-1000">
-          {/* Header */}
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6 pt-8">
             <div>
               <h1 className="text-4xl md:text-2xl font-extrabold text-foreground mb-4 tracking-tight">
@@ -126,7 +99,7 @@ function DashboardContent() {
               <button
                 onClick={async () => {
                   setIsRefreshing(true);
-                  await fetchJobs(false);
+                  await refreshJobs();
                   setIsRefreshing(false);
                 }}
                 className="p-2.5 rounded-lg bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-500 hover:text-foreground transition-all shadow-sm"
@@ -148,9 +121,7 @@ function DashboardContent() {
               <div className="w-52">
                 <CustomSelect
                   value={filterStatus}
-                  onChange={(val: string) =>
-                    setFilterStatus(val as JobStatus | "All")
-                  }
+                  onChange={(val) => setFilterStatus(val as JobStatus | "All")}
                   options={[
                     { label: "All Applications", value: "All" },
                     { label: "Applied", value: "Applied" },
@@ -169,14 +140,12 @@ function DashboardContent() {
             </div>
           </div>
 
-          {/* Stats Grid */}
           <StatsGrid
             jobs={jobs}
             filterStatus={filterStatus}
-            setFilterStatus={(s) => setFilterStatus(s as JobStatus)}
+            setFilterStatus={(s) => setFilterStatus(s)}
           />
 
-          {/* Job List */}
           {filteredJobs.length === 0 ? (
             <div className="text-center py-20 glass-panel rounded-2xl">
               <h3 className="text-xl font-medium text-foreground mb-2">
@@ -208,15 +177,12 @@ function DashboardContent() {
             </div>
           )}
 
-          {/* Modals */}
-          {isFormOpen && (
-            <JobFormModal
-              isOpen={isFormOpen}
-              editingJob={editingJob}
-              onClose={() => setIsFormOpen(false)}
-              onSave={handleSaveJob}
-            />
-          )}
+          <JobFormModal
+            isOpen={isFormOpen}
+            editingJob={editingJob}
+            onClose={() => setIsFormOpen(false)}
+            onSave={handleSaveJob}
+          />
 
           <DeleteConfirmModal
             isOpen={!!deleteId}

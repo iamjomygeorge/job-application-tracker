@@ -51,10 +51,9 @@ export default function AuthScreen() {
   };
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center p-4 animate-in fade-in zoom-in-95 duration-1000">
+    <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center p-4 animate-in fade-in zoom-in-95 duration-300">
       <div className="w-full max-w-6xl grid md:grid-cols-2 gap-12 items-center">
-        {/* Left Side: Marketing Text */}
-        <div className="space-y-8 text-center md:text-left animate-in fade-in slide-in-from-left-8 duration-1000 delay-100">
+        <div className="space-y-8 text-center md:text-left animate-in fade-in slide-in-from-left-8 duration-300 delay-100">
           <div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground mb-4 leading-tight">
               Track Your <span className="text-primary">Applications</span>
@@ -64,10 +63,54 @@ export default function AuthScreen() {
               manage your job search journey in one beautiful dashboard.
             </p>
           </div>
+
+          <div className="grid grid-cols-2 gap-4 max-w-md mx-auto md:mx-0 mt-8">
+            <div className="p-4 rounded-xl bg-primary/5 border border-primary/10">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-3 text-primary">
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                  />
+                </svg>
+              </div>
+              <h3 className="font-semibold text-foreground mb-1">Track All</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Keep all your applications in one place.
+              </p>
+            </div>
+            <div className="p-4 rounded-xl bg-purple-500/5 border border-purple-500/10">
+              <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center mb-3 text-purple-500">
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"
+                  />
+                </svg>
+              </div>
+              <h3 className="font-semibold text-foreground mb-1">Insights</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Visualize your progress with stats.
+              </p>
+            </div>
+          </div>
         </div>
 
-        {/* Right Side: Auth Form */}
-        <div className="glass-panel w-full max-w-md mx-auto rounded-2xl p-8 shadow-2xl backdrop-blur-xl bg-background/50 border border-border animate-in fade-in slide-in-from-right-8 duration-1000 delay-300">
+        <div className="glass-panel w-full max-w-md mx-auto rounded-2xl p-8 shadow-2xl backdrop-blur-xl bg-background/50 border border-border animate-in fade-in slide-in-from-right-8 duration-300">
           <div className="mb-8 text-center">
             <h2 className="text-2xl font-bold text-foreground mb-2">
               {authView === "login" ? "Welcome Back" : "Create Account"}
@@ -134,7 +177,7 @@ export default function AuthScreen() {
               className="w-full rounded-xl bg-primary py-3.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition-all hover:bg-primary/90 hover:shadow-primary/40 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {authLoading
-                ? "Processing..."
+                ? "Logging in..."
                 : authView === "login"
                 ? "Sign In"
                 : "Sign Up"}

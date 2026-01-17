@@ -1,28 +1,25 @@
 import { useState } from "react";
 import CustomSelect from "@/components/CustomSelect";
-import { JobApplication } from "@/types";
+import { JobApplication, JobFormData, ApplicationStatus } from "@/types";
 
 interface JobFormModalProps {
   isOpen: boolean;
   editingJob: JobApplication | null;
   onClose: () => void;
-  onSave: (data: Partial<JobApplication>) => Promise<void>;
+  onSave: (data: JobFormData) => Promise<void>;
 }
 
-export default function JobFormModal({
-  isOpen,
-  editingJob,
-  onClose,
-  onSave,
-}: JobFormModalProps) {
-  const [formData, setFormData] = useState<{
-    company: string;
-    role: string;
-    status: JobApplication["status"];
-    applied_date: string;
-    notes: string;
-    job_link: string;
-  }>(() => {
+const INITIAL_DATA: JobFormData = {
+  company: "",
+  role: "",
+  status: "Applied",
+  applied_date: "",
+  notes: "",
+  job_link: "",
+};
+
+function JobForm({ editingJob, onClose, onSave }: JobFormModalProps) {
+  const [formData, setFormData] = useState<JobFormData>(() => {
     if (editingJob) {
       return {
         company: editingJob.company,
@@ -35,39 +32,79 @@ export default function JobFormModal({
         job_link: editingJob.job_link || "",
       };
     }
-    return {
-      company: "",
-      role: "",
-      status: "Applied",
-      applied_date: "",
-      notes: "",
-      job_link: "",
-    };
+    return INITIAL_DATA;
   });
+
   const [submitting, setSubmitting] = useState(false);
   const [showConfirmDiscard, setShowConfirmDiscard] = useState(false);
+  const [urlError, setUrlError] = useState<string | null>(null);
+
+  const isValidUrl = (string: string) => {
+    if (!string) return true;
+    try {
+      const url = new URL(string);
+      // Basic check for TLD (must have at least one dot in hostname)
+      return url.protocol.startsWith("http") && url.hostname.includes(".");
+    } catch {
+      return false;
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setUrlError(null);
+
+    if (formData.job_link && !isValidUrl(formData.job_link)) {
+      setUrlError("Please enter a valid URL (e.g., https://example.com)");
+      return;
+    }
+
+    const payload = {
+      ...formData,
+      applied_date: formData.applied_date || null,
+      notes: formData.notes || null,
+      job_link: formData.job_link || null,
+    };
+
     setSubmitting(true);
-    await onSave(formData);
+    await onSave(payload as unknown as JobFormData);
     setSubmitting(false);
   };
 
   const handleClose = () => {
-    const hasContent = formData.company || formData.role;
-    if (hasContent && !editingJob) {
+    const originalData = editingJob
+      ? {
+          company: editingJob.company,
+          role: editingJob.role,
+          status: editingJob.status,
+          applied_date: editingJob.applied_date
+            ? new Date(editingJob.applied_date).toISOString().split("T")[0]
+            : "",
+          notes: editingJob.notes || "",
+          job_link: editingJob.job_link || "",
+        }
+      : INITIAL_DATA;
+
+    const isDirty = JSON.stringify(formData) !== JSON.stringify(originalData);
+
+    if (isDirty) {
       setShowConfirmDiscard(true);
     } else {
       onClose();
     }
   };
 
-  if (!isOpen) return null;
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      handleClose();
+    }
+  };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      {/* Main Form Modal */}
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+      onClick={handleBackdropClick}
+    >
       {!showConfirmDiscard && (
         <div className="glass-panel w-full max-w-2xl rounded-2xl p-8 shadow-2xl animate-in fade-in zoom-in duration-200 bg-background/95">
           <div className="flex justify-between items-center mb-6">
@@ -121,10 +158,10 @@ export default function JobFormModal({
                 </label>
                 <CustomSelect
                   value={formData.status}
-                  onChange={(value: string) =>
+                  onChange={(value) =>
                     setFormData({
                       ...formData,
-                      status: value as JobApplication["status"],
+                      status: value as ApplicationStatus,
                     })
                   }
                   options={[
@@ -160,8 +197,13 @@ export default function JobFormModal({
                 onChange={(e) =>
                   setFormData({ ...formData, job_link: e.target.value })
                 }
-                className="glass-input w-full rounded-lg px-3 py-2 text-foreground"
+                className={`glass-input w-full rounded-lg px-3 py-2 text-foreground ${
+                  urlError ? "border-red-500 ring-2 ring-red-500/20" : ""
+                }`}
               />
+              {urlError && (
+                <p className="mt-1 text-xs text-red-500">{urlError}</p>
+              )}
             </div>
 
             <div>
@@ -202,7 +244,6 @@ export default function JobFormModal({
         </div>
       )}
 
-      {/* Discard Confirmation Nested Modal */}
       {showConfirmDiscard && (
         <div className="glass-panel w-full max-w-sm rounded-2xl p-6 shadow-2xl bg-background border border-border">
           <h3 className="text-lg font-bold text-foreground mb-2">
@@ -228,5 +269,12 @@ export default function JobFormModal({
         </div>
       )}
     </div>
+  );
+}
+
+export default function JobFormModal(props: JobFormModalProps) {
+  if (!props.isOpen) return null;
+  return (
+    <JobForm key={props.editingJob ? props.editingJob.id : "new"} {...props} />
   );
 }

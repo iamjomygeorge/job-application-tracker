@@ -1,7 +1,7 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
 class ApiService {
-  private async getHeaders(token?: string) {
+  private getHeaders(token?: string): HeadersInit {
     const headers: HeadersInit = {
       "Content-Type": "application/json",
     };
@@ -17,7 +17,7 @@ class ApiService {
     body?: unknown,
     token?: string
   ): Promise<T> {
-    const headers = await this.getHeaders(token);
+    const headers = this.getHeaders(token);
     const res = await fetch(`${API_URL}${endpoint}`, {
       method,
       headers,
@@ -25,10 +25,10 @@ class ApiService {
     });
 
     if (!res.ok) {
-      throw new Error(`API Error: ${res.statusText}`);
+      const errorData = await res.json().catch(() => ({}));
+      throw new Error(errorData.error || `API Error: ${res.statusText}`);
     }
 
-    // Handle empty responses (like DELETE)
     const text = await res.text();
     return text ? JSON.parse(text) : (null as T);
   }

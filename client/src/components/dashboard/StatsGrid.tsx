@@ -1,9 +1,9 @@
-import { JobApplication, JobStatus } from "@/types";
+import { JobApplication, JobStatus, FilterStatus } from "@/types";
 
 interface StatsGridProps {
   jobs: JobApplication[];
-  filterStatus: string;
-  setFilterStatus: (status: JobStatus) => void;
+  filterStatus: FilterStatus;
+  setFilterStatus: (status: FilterStatus) => void;
 }
 
 export default function StatsGrid({
@@ -73,12 +73,67 @@ export default function StatsGrid({
               </p>
             </div>
             <div className={`p-3 rounded-full ${iconContainerClass}`}>
-              {/* Simplified icon rendering */}
               <div className="w-6 h-6 flex items-center justify-center font-bold text-lg">
-                {status === "Applied" && "📄"}
-                {status === "Interview" && "🎤"}
-                {status === "Offer" && "🎉"}
-                {status === "Rejected" && "✕"}
+                {status === "Applied" && (
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                )}
+                {status === "Interview" && (
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"
+                    />
+                  </svg>
+                )}
+                {status === "Offer" && (
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                )}
+                {status === "Rejected" && (
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                )}
               </div>
             </div>
           </div>
