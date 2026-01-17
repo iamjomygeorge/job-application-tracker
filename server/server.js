@@ -7,15 +7,20 @@ const hpp = require("hpp");
 const db = require("./src/config/db");
 const supabase = require("./src/config/supabase");
 
+const requireAuth = require("./src/middleware/authMiddleware");
+const jobRoutes = require("./src/routes/jobRoutes");
+
 const app = express();
-app.set('trust proxy', 1); 
+app.set("trust proxy", 1);
 const PORT = process.env.PORT || 8080;
 
 app.use(helmet());
-app.use(cors({
-  origin: process.env.CLIENT_URL || "http://localhost:3000",
-  credentials: true,
-}));
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    credentials: true,
+  })
+);
 app.use(express.json({ limit: "10kb" }));
 app.use(hpp());
 
@@ -40,6 +45,8 @@ app.get("/health", async (req, res) => {
 app.get("/", (req, res) => {
   res.send("API is running");
 });
+
+app.use("/api/applications", jobRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

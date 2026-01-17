@@ -1,1 +1,114 @@
 @import "tailwindcss";
+
+:root {
+  --background: 220 15% 10%;
+  --foreground: 220 15% 90%;
+
+  --primary: 260 80% 60%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 220 15% 18%;
+  --secondary-foreground: 220 15% 90%;
+
+  --accent: 260 80% 50%;
+  --accent-foreground: 0 0% 100%;
+
+  --card: 220 15% 14%;
+  --card-foreground: 220 15% 90%;
+
+  --border: 220 15% 20%;
+  --input: 220 15% 18%;
+  --ring: 260 80% 60%;
+}
+
+.light {
+  --background: 220 20% 97%;
+  --foreground: 220 15% 10%;
+
+  --primary: 260 80% 60%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 220 10% 90%;
+  --secondary-foreground: 220 15% 10%;
+
+  --accent: 260 80% 50%;
+  --accent-foreground: 0 0% 100%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 220 15% 10%;
+
+  --border: 220 10% 85%;
+  --input: 220 10% 90%;
+  --ring: 260 80% 60%;
+}
+
+.dark {
+  --background: 220 15% 10%;
+  --foreground: 220 15% 90%;
+  --card: 220 15% 14%;
+  --card-foreground: 220 15% 90%;
+  --border: 220 15% 20%;
+  --input: 220 15% 18%;
+}
+
+@theme {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: "Inter", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Glassmorphism Utilities */
+.glass-panel {
+  background: var(--color-card);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.glass-input {
+  background: var(--color-input);
+  border: 1px solid var(--color-border);
+  color: var(--color-foreground);
+  transition: all 0.2s ease;
+}
+
+.glass-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-ring);
+  outline: none;
+}
+
+/* Light mode overrides for glass effect transparency if needed */
+.light .glass-panel {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(0, 0, 0, 0.05);
+}
+
+.light .glass-input {
+  background: rgba(255, 255, 255, 0.6);
+  border-color: rgba(0, 0, 0, 0.1);
+}
