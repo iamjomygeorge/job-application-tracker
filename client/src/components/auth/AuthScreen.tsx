@@ -19,6 +19,11 @@ export default function AuthScreen() {
     if (authParam === "login" || authParam === "signup") {
       setAuthView(authParam);
     }
+
+    // Wake up the backend server silently
+    fetch(
+      `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080"}/health`
+    ).catch(() => {});
   }, [searchParams]);
 
   const handleAuth = async (e: React.FormEvent) => {
