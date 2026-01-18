@@ -1,5 +1,7 @@
 # Job Application Tracker
 
+<div align="justify">
+
 ## 🚀 Tech Stack
 
 - **Frontend:** Next.js (React)
@@ -184,3 +186,5 @@ DATABASE_URL=postgres://postgres:[YOUR-PASSWORD]@db.[YOUR-PROJECT-REF].supabase.
 SUPABASE_URL=https://[YOUR-PROJECT-REF].supabase.co
 SUPABASE_ANON_KEY=[YOUR-SUPABASE-ANON-KEY]
 ```
+
+</div>
