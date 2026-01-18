@@ -8,6 +8,98 @@
 - **Authentication:** Supabase Auth (Email + Password)
 - **Styling:** Tailwind CSS
 
+## 🔒 Security & JWT Implementation
+
+Authentication is handled via **Supabase Auth**.
+
+1.  **Token Exchange:** The frontend sends the Supabase JWT in the `Authorization` header (`Bearer <token>`).
+2.  **Verification:** The backend (`authMiddleware.js`) extracts this token and verifies it directly with Supabase's `auth.getUser(token)` method.
+3.  **User Scoping:** The decoded `user.id` is attached to `req.user` and used in all SQL queries to ensure users can only access their own data (preventing IDOR).
+
+## 🗄️ Database Schema
+
+**Table:** `job_applications`
+
+| Column         | Type        | Constraints | Description                            |
+| :------------- | :---------- | :---------- | :------------------------------------- |
+| `id`           | `uuid`      | Primary Key | Unique ID                              |
+| `user_id`      | `uuid`      | Foreign Key | References Auth User (RLS)             |
+| `company`      | `text`      | Not Null    | Company Name                           |
+| `role`         | `text`      | Not Null    | Job Position                           |
+| `status`       | `text`      | Enum        | Applied / Interview / Offer / Rejected |
+| `applied_date` | `date`      | Nullable    | Date of application                    |
+| `notes`        | `text`      | Nullable    | User notes                             |
+| `job_link`     | `text`      | Nullable    | URL to job post                        |
+| `created_at`   | `timestamp` | Default Now | Creation time                          |
+
+## 🧪 Testing with Postman
+
+You can easily test the API endpoints using Postman.
+
+### Prerequisites
+
+1. **Login first:** You need a valid JWT token.
+   - Sign up/Login on the frontend (`http://localhost:3000`).
+   - Open your browser's Developer Tools (F12) -> Application -> Local Storage.
+   - Copy the value of `sb-[project-id]-auth-token` (specifically the `access_token` string inside the JSON).
+
+### 1. Get All Applications (GET)
+
+- **Method:** `GET`
+- **URL:** `http://localhost:8080/api/applications`
+- **Headers:**
+  - Key: `Authorization`, Value: `Bearer <PASTE_YOUR_TOKEN_HERE>`
+
+### 2. Add a New Application (POST)
+
+- **Method:** `POST`
+- **URL:** `http://localhost:8080/api/applications`
+- **Headers:**
+  - Key: `Authorization`, Value: `Bearer <PASTE_YOUR_TOKEN_HERE>`
+  - Key: `Content-Type`, Value: `application/json`
+- **Body:** Select **raw** and **JSON**, then paste:
+  ```json
+  {
+    "company": "Google",
+    "role": "Software Engineer",
+    "status": "Applied",
+    "job_link": "https://example.com"
+  }
+  ```
+
+You can easily test the API endpoints using Postman.
+
+### Prerequisites
+
+1. **Login first:** You need a valid JWT token.
+   - Sign up/Login on the frontend (`http://localhost:3000`).
+   - Open your browser's Developer Tools (F12) -> Application -> Local Storage.
+   - Copy the `sb-[project-id]-auth-token` (specifically the `access_token` string inside the JSON).
+
+### 1. Get All Applications (GET)
+
+- **Method:** `GET`
+- **URL:** `http://localhost:8080/api/applications`
+- **Headers:**
+  - Key: `Authorization`, Value: `Bearer <PASTE_YOUR_TOKEN_HERE>`
+
+### 2. Add a New Application (POST)
+
+- **Method:** `POST`
+- **URL:** `http://localhost:8080/api/applications`
+- **Headers:**
+  - Key: `Authorization`, Value: `Bearer <PASTE_YOUR_TOKEN_HERE>`
+  - Key: `Content-Type`, Value: `application/json`
+- **Body:** Select **raw** and **JSON**, then paste:
+  ```json
+  {
+    "company": "Google",
+    "role": "Software Engineer",
+    "status": "Applied",
+    "job_link": "[https://google.com/careers](https://google.com/careers)"
+  }
+  ```
+
 ## 🛠️ Setup & Installation
 
 Follow these steps to run the mini web app.
